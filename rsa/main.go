@@ -1,22 +1,17 @@
 package myrsa
 
 import (
-	"fmt"
 	"math"
+	"math/big"
 	"math/rand"
 )
-
-type Uint128 struct {
-	size int
-	n    [16]byte
-}
 
 /*
   Judge the number whether prime
 */
-func IsPrime(number uint64) bool {
+func IsPrime(number int64) bool {
 	lim := math.Sqrt(float64(number))
-	for i := uint64(2); float64(i) <= lim; i++ {
+	for i := int64(2); float64(i) <= lim; i++ {
 		if number%i == 0 {
 			return false
 		}
@@ -24,56 +19,25 @@ func IsPrime(number uint64) bool {
 	return true
 }
 
-func CountSizeUint128(a Uint128) int {
-	ret := 1
-	for i := 16; i >= 1; i-- {
-		if a.n[i-1] > 0 {
-			ret = i
-			break
-		}
-	}
-	return ret
-}
-
 /*
   Generate prime randly
 */
-func GeneratePrime() Uint128 {
-	prime := rand.Uint64()
+func GeneratePrime() *big.Int {
+	prime := rand.Int63()
 	for !IsPrime(prime) {
-		prime = rand.Uint64()
+		prime = rand.Int63()
 	}
-	var ret Uint128
-	for i := 1; i <= 16; i++ {
-		ret.n[i-1] = byte(uint64(prime) & 0xff)
-		prime >>= 8
-	}
-	ret.size = CountSizeUint128(ret)
+	ret := big.NewInt(prime)
 	return ret
-}
-
-func Multiply(a Uint128, b Uint128) Uint128 {
-	var tmp [16]int
-	for i := 1; i <= a.size; i++ {
-		for j := 1; j <= b.size; j++ {
-			tmp[i+j-1] += int(a.n[i]) * int(b.n[j])
-		}
-	}
-	var c Uint128
-	for i := 1; i <= 16; i++ {
-		c.n[i-1] = byte(tmp[i-1] & 0xff)
-		tmp[i] += tmp[i-1] / 0x100
-	}
-	c.size = CountSizeUint128(c)
-	return c
 }
 
 /*
   Generate 128 bits rsa keys
 */
-func GenerateRsaKey() (publicKey [16]byte, privateKey [16]byte) {
+func GenerateRsaKey() (n *big.Int, publicKey *big.Int, privateKey *big.Int) {
 	p, q := GeneratePrime(), GeneratePrime()
-	fmt.Println(p, q)
-	n := Multiply(p, q)
-
+	var tmp *big.Int
+	n = tmp.Mul(p, q)
+	fiN := tmp.Mul(tmp.Sub(p, big.NewInt(1)), tmp.Sub(q, big.NewInt(1)))
+	return n, p, q
 }
