@@ -24,6 +24,17 @@ func IsPrime(number uint64) bool {
 	return true
 }
 
+func CountSizeUint128(a Uint128) int {
+	ret := 1
+	for i := 16; i >= 1; i-- {
+		if a.n[i-1] > 0 {
+			ret = i
+			break
+		}
+	}
+	return ret
+}
+
 /*
   Generate prime randly
 */
@@ -37,20 +48,24 @@ func GeneratePrime() Uint128 {
 		ret.n[i-1] = byte(uint64(prime) & 0xff)
 		prime >>= 8
 	}
-	for i := 16; i >= 1; i-- {
-		if ret.n[i-1] > 0 {
-			ret.size = i
-			break
-		}
-	}
-	if ret.size == 0 {
-		ret.size = 1
-	}
+	ret.size = CountSizeUint128(ret)
 	return ret
 }
 
 func Multiply(a Uint128, b Uint128) Uint128 {
-
+	var tmp [16]int
+	for i := 1; i <= a.size; i++ {
+		for j := 1; j <= b.size; j++ {
+			tmp[i+j-1] += int(a.n[i]) * int(b.n[j])
+		}
+	}
+	var c Uint128
+	for i := 1; i <= 16; i++ {
+		c.n[i-1] = byte(tmp[i-1] & 0xff)
+		tmp[i] += tmp[i-1] / 0x100
+	}
+	c.size = CountSizeUint128(c)
+	return c
 }
 
 /*
