@@ -49,11 +49,8 @@ func RsaEncrypt(desKey []byte, rsaPublicKey *big.Int, n *big.Int) (encryptedDesK
 	return
 }
 
-func RsaDecrypt(desKey []byte, rsaPrivateKey *big.Int, n *big.Int) (decryptedDesKey *big.Int) {
-	desNumber := binary.LittleEndian.Uint64(desKey)
-	desBigNumber := big.NewInt(0)
-	desBigNumber.SetUint64(desNumber)
-	decryptedDesKey = Power(desBigNumber, rsaPrivateKey, n)
+func RsaDecrypt(desKey *big.Int, rsaPrivateKey *big.Int, n *big.Int) (decryptedDesKey *big.Int) {
+	decryptedDesKey = Power(desKey, rsaPrivateKey, n)
 	return
 }
 
@@ -68,9 +65,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	cipherBlockMode := cipher.NewCBCDecrypter(cipherBlock, make([]byte, 8))
+	decryptedDesKey := RsaDecrypt(encryptedDesKey, privateKey, n)
+	fmt.Println("The RSA decrypted DES key is:", decryptedDesKey)
+	cipherEncrypterBlockMode := cipher.NewCBCEncrypter(cipherBlock, make([]byte, 8))
+	cipherDecrypterBlockMode := cipher.NewCBCDecrypter(cipherBlock, make([]byte, 8))
 	text := ReadText()
-	dstText := make([]byte, (len(text)+7)/8*8)
-	cipherBlockMode.CryptBlocks(text, dstText)
-	fmt.Println(dstText)
+	fmt.Println(text)
+	dstText := make([]byte, len(text))
+	cipherEncrypterBlockMode.CryptBlocks(dstText, text)
+	fmt.Println("The encrypted string: ", string(dstText))
+	cipherDecrypterBlockMode.CryptBlocks(text, dstText)
+	fmt.Println("The decrypted string: ", text)
 }
