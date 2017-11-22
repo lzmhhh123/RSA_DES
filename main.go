@@ -26,11 +26,11 @@ func ReadText() (ret []byte) {
 	return
 }
 
-func Power(a *big.Int, b *big.Int, mod *big.Int) (ret *big.Int) {
+func Power(a, b, mod *big.Int) (ret *big.Int) {
 	ret = big.NewInt(1)
 	for b.Cmp(big.NewInt(0)) != 0 {
 		tmp := big.NewInt(0)
-		if tmp.And(b, big.NewInt(1)).Cmp(big.NewInt(1)) == 0 {
+		if tmp.And(b, big.NewInt(1)); tmp.Cmp(big.NewInt(1)) == 0 {
 			ret.Mul(ret, a)
 			ret.Mod(ret, mod)
 		}
@@ -41,7 +41,7 @@ func Power(a *big.Int, b *big.Int, mod *big.Int) (ret *big.Int) {
 	return
 }
 
-func RsaEncrypt(desKey []byte, rsaPublicKey *big.Int, n *big.Int) (encryptedDesKey *big.Int) {
+func RsaEncrypt(desKey []byte, rsaPublicKey, n *big.Int) (encryptedDesKey *big.Int) {
 	desNumber := binary.LittleEndian.Uint64(desKey)
 	desBigNumber := big.NewInt(0)
 	desBigNumber.SetUint64(desNumber)
@@ -49,31 +49,30 @@ func RsaEncrypt(desKey []byte, rsaPublicKey *big.Int, n *big.Int) (encryptedDesK
 	return
 }
 
-func RsaDecrypt(desKey *big.Int, rsaPrivateKey *big.Int, n *big.Int) (decryptedDesKey *big.Int) {
+func RsaDecrypt(desKey, rsaPrivateKey, n *big.Int) (decryptedDesKey *big.Int) {
 	decryptedDesKey = Power(desKey, rsaPrivateKey, n)
 	return
 }
 
 func main() {
 	n, publicKey, privateKey := myrsa.GenerateRsaKey()
-	fmt.Println("RSA public key: (", n, ", ", publicKey, ").")
-	fmt.Println("RSA private key: (", n, ", ", privateKey, ").")
+	fmt.Println("RSA public key: (", n.String(), ", ", publicKey.String(), ").")
+	fmt.Println("RSA private key: (", n.String(), ", ", privateKey.String(), ").")
 	desKey := ReadDesKey()
 	cipherBlock, err := des.NewCipher(desKey)
 	encryptedDesKey := RsaEncrypt(desKey, publicKey, n)
-	fmt.Println("The RSA encrypted DES key is:", encryptedDesKey)
+	fmt.Println("The RSA encrypted DES key is:", encryptedDesKey.String())
 	if err != nil {
 		panic(err)
 	}
 	decryptedDesKey := RsaDecrypt(encryptedDesKey, privateKey, n)
-	fmt.Println("The RSA decrypted DES key is:", decryptedDesKey)
+	fmt.Println("The RSA decrypted DES key is:", decryptedDesKey.String())
 	cipherEncrypterBlockMode := cipher.NewCBCEncrypter(cipherBlock, make([]byte, 8))
 	cipherDecrypterBlockMode := cipher.NewCBCDecrypter(cipherBlock, make([]byte, 8))
 	text := ReadText()
-	fmt.Println(text)
 	dstText := make([]byte, len(text))
 	cipherEncrypterBlockMode.CryptBlocks(dstText, text)
-	fmt.Println("The encrypted string: ", string(dstText))
+	fmt.Println("The encrypted bytes: ", dstText)
 	cipherDecrypterBlockMode.CryptBlocks(text, dstText)
-	fmt.Println("The decrypted string: ", text)
+	fmt.Println("The decrypted bytes: ", text)
 }
