@@ -10,3 +10,5 @@ git clone https://github.com/lzmhhh123/RSA_DES
 cd RSA_DES
 go run main.go
 ```
+### Report
+*encryption & decryption experiment result:*
