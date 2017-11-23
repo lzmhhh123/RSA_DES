@@ -65,14 +65,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	decryptedDesKey := RsaDecrypt(encryptedDesKey, privateKey, n)
-	fmt.Println("The RSA decrypted DES key is:", decryptedDesKey.String())
 	cipherEncrypterBlockMode := cipher.NewCBCEncrypter(cipherBlock, make([]byte, 8))
 	cipherDecrypterBlockMode := cipher.NewCBCDecrypter(cipherBlock, make([]byte, 8))
 	text := ReadText()
 	dstText := make([]byte, len(text))
 	cipherEncrypterBlockMode.CryptBlocks(dstText, text)
 	fmt.Println("The encrypted bytes: ", dstText)
+	decryptedDesKey := RsaDecrypt(encryptedDesKey, privateKey, n)
+	fmt.Println("The RSA decrypted DES key is:", decryptedDesKey.String())
 	cipherDecrypterBlockMode.CryptBlocks(text, dstText)
 	fmt.Println("The decrypted bytes: ", text)
 }

@@ -12,3 +12,4 @@ go run main.go
 ```
 ### Report
 *encryption & decryption experiment result:*
+<img src="./ExperimentResult.png" />
