@@ -8,7 +8,7 @@ Inplement of 128bits of RSA keys generation. Combined DES algorithm to encrypt a
 
 ### Usage
 ```
-cd $GOPATH/src
+cd $GOPATH
 git clone https://github.com/lzmhhh123/RSA_DES
 cd RSA_DES
 go run main.go
