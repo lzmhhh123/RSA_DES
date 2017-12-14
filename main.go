@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ISpj1-2/myrsa"
+	"RSA_DES/myrsa"
 	"crypto/cipher"
 	"crypto/des"
 	"encoding/binary"
